@@ -1,0 +1,18 @@
+{
+    "name": "pac/prooph-package",
+    "type": "library",
+    "description": "PAC prooph package",
+    "keywords": ["prooph"],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.1"
+    },
+    "require-dev": {
+        "codeception/codeception": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pac\\": "src/"
+        }
+    }
+}

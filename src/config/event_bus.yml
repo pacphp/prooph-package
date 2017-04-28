@@ -1,0 +1,12 @@
+parameters: 
+  prooph_service_bus.event_bus_router.class: Prooph\ServiceBus\Plugin\Router\EventRouter
+  prooph_service_bus.event_bus.class: Prooph\ServiceBus\EventBus
+  prooph_service_bus.message_bus_factory.class: Pac\ProophPackage\Factory\MessageBusFactory
+services: 
+  prooph_service_bus.event_bus:
+    class: '%prooph_service_bus.event_bus.class%'
+    factory: ['@prooph_service_bus.event_bus_factory', create]
+  prooph_service_bus.event_bus_factory:
+    class: '%prooph_service_bus.message_bus_factory.class%'
+  prooph_service_bus.event_bus_router:
+    class: '%prooph_service_bus.event_bus_router.class%'
