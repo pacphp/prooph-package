@@ -1,0 +1,5 @@
+parameters:
+    prooph_event_store.projection_manager_factory.class: Pac\ProophPackage\Factory\ProjectionManagerFactory
+services:
+    prooph_event_store.projection_manager_factory:
+        class: '%prooph_event_store.projection_manager_factory.class%'

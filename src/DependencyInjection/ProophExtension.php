@@ -15,6 +15,8 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class ProophExtension implements ExtensionInterface
 {
+    public const TAG_PROJECTION = 'prooph_event_store.projection';
+
     const AVAILABLE_BUSES = [
         'command' => CommandBus::class,
         'event' => EventBus::class,
@@ -38,6 +40,8 @@ class ProophExtension implements ExtensionInterface
                 $this->busLoad($type, $bus, $config[$type . '_buses'], $containerBuilder, $loader);
             }
         }
+
+        (new ProjectionLoader())->load($config, $containerBuilder);
 
         return $containerBuilder;
     }
