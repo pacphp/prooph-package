@@ -5,6 +5,8 @@
     "keywords": ["prooph"],
     "license": "MIT",
     "require": {
+        "elasticsearch/elasticsearch": "~5.0",
+        "prooph/event-store": "^7.0",
         "php": ">=7.1"
     },
     "require-dev": {
@@ -12,7 +14,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Pac\\ProophPackage\\": "src/"
+            "Pac\\ProophPackage\\": "src/",
+            "Test\\Unit\\": "tests/unit",
+            "Test\\Functional\\": "tests/functional",
+            "Test\\Acceptance\\": "tests/acceptance",
+            "Fixtures\\": "tests/_data/fixtures"
         }
     }
 }
