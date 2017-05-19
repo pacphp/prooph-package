@@ -8,6 +8,7 @@ use Prooph\EventStore\Projection\AbstractReadModel;
 
 abstract class AbstractElasticsearchModel extends AbstractReadModel
 {
+    const ID_NAME = 'id';
     const INDEX_TYPE = null;
 
     /** @var Client */
@@ -16,6 +17,11 @@ abstract class AbstractElasticsearchModel extends AbstractReadModel
     public function __construct(Client $client)
     {
         $this->client = $client;
+    }
+
+    public function getClient(): Client
+    {
+        return $this->client;
     }
 
     public function isInitialized(): bool
