@@ -55,18 +55,22 @@ class ProjectionLoader
     {
         foreach ($config['projections'] as $projectionName => $projectionConfig) {
             $containerBuilder->setAlias(sprintf('%s.%s.projection_manager', ProophExtension::TAG_PROJECTION, $projectionName), $projectionConfig['projection_manager']);
-            $containerBuilder->setAlias(sprintf('%s.%s.read_model', ProophExtension::TAG_PROJECTION, $projectionName), $projectionConfig['read_model']);
+            $containerBuilder->setAlias(sprintf('%s.%s.read_model_collection', ProophExtension::TAG_PROJECTION, $projectionName), $projectionConfig['read_model_collection']);
+            $referencedProjectors = [];
+            foreach ($projectionConfig['projectors'] as $event => $projectors) {
+                foreach ($projectors as $projector) {
+                    $referencedProjectors[$event][] = new Reference($projector);
+                }
+            }
             $containerBuilder
                 ->setDefinition(
                     sprintf('prooph_event_store.projection.%s', $projectionName),
-                    (new Definition())
-                        ->setClass($projectionConfig['projection_class'])
-                        ->addTag(
-                            'prooph_event_store.projection',
+                    (new Definition($projectionConfig['projection_class']))
+                        ->setFactory([ProjectionsFactory::class, 'loadProjectors'])
+                        ->setArguments(
                             [
-                                'projection_name'    => $projectionName,
-                                'read_model'         => $projectionConfig['read_model'],
-                                'projection_manager' => $projectionConfig['projection_manager'],
+                                $projectionConfig['projection_class'],
+                                $referencedProjectors,
                             ]
                         )
                 );
