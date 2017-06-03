@@ -29,17 +29,6 @@ abstract class ProophBridgeField extends AbstractField
 
     protected function resolveData($value, array $args, ResolveInfoInterface $info): array
     {
-        if (empty($args[static::ID_FIELD])) {
-            $id = Uuid::uuid4();
-            $args += [static::ID_FIELD => $id->getHex()];
-        } else {
-            $id = Uuid::fromString($args[static::ID_FIELD]);
-        }
-
-        return [
-//            IdentityMiddleware::IDENTITY_ATTRIBUTE => $info->getExecutionContext()->getContainer()->get(IdentityMiddleware::IDENTITY_ATTRIBUTE),
-            'payload' => $args,
-            'uuid'    => $id,
-        ];
+        return $args;
     }
 }
