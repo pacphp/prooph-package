@@ -21,12 +21,7 @@ abstract class AbstractActionCommand extends Command implements PayloadConstruct
 
     public static function fromPayload($payload): Command
     {
-        if (empty($payload[static::rootIdFieldName()]) && static::idCreationAllowed()) {
-            $uuid = Uuid::uuid4();
-            $payload += [static::rootIdFieldName() => $uuid->getHex()];
-        } else {
-            $uuid = Uuid::fromString($payload[static::rootIdFieldName()]);
-        }
+        $uuid = Uuid::fromString($payload[static::rootIdFieldName()]);
 
         $createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
@@ -41,6 +36,5 @@ abstract class AbstractActionCommand extends Command implements PayloadConstruct
         return static::fromArray($message);
     }
 
-    abstract protected static function idCreationAllowed(): bool;
     abstract protected static function rootIdFieldName(): string;
 }
