@@ -26,7 +26,6 @@ class ProjectionLoader
         }
 
         return $containerBuilder;
-
     }
 
     protected function loadProjectionManagers(array $config, ContainerBuilder $containerBuilder)
