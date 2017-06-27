@@ -26,8 +26,9 @@ class CreateEventStreamCommand extends Command
     {
         $eventStream = strtolower($input->getArgument('event-stream'));
 
-        $eventStore = $this->getContainer()->get('prooph_event_store.' . $eventStream);
+        $eventStore = $this->getContainer()->get('prooph_event_store.' . $eventStream . '_store');
+        $streamName = $eventStream . '_streams';
 
-        $eventStore->create(new Stream(new StreamName($eventStream), new ArrayIterator()));
+        $eventStore->create(new Stream(new StreamName($streamName), new ArrayIterator()));
     }
 }

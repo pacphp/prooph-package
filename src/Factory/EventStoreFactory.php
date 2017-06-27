@@ -3,14 +3,21 @@ declare(strict_types=1);
 
 namespace Pac\ProophPackage\Factory;
 
+use Prooph\Common\Messaging\FQCNMessageFactory;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Exception\ConfigurationException;
+use Prooph\EventStore\Pdo\MySqlEventStore;
+use Prooph\EventStore\Pdo\PersistenceStrategy\MySqlSimpleStreamStrategy;
 use Prooph\EventStore\Plugin\Plugin;
 
 final class EventStoreFactory
 {
-    public function create(array $config, array $plugins = []): EventStore
+    private $root;
+
+    public function create(string $root, array $config, array $plugins = []): EventStore
     {
+        $this->root = $root;
+
         $eventStore = $this->buildEventStore($config);
 
         foreach ($plugins as $plugin) {
@@ -43,6 +50,24 @@ final class EventStoreFactory
 
     private function buildMySqlEventStore($config): EventStore
     {
+        switch ($config['strategy']) {
+            case 'single_stream':
+                $strategy = new MySqlSimpleStreamStrategy();
+
+                break;
+            default:
+                throw ConfigurationException::configurationError($config['strategy']);
+        }
+        $messageFactory = new FQCNMessageFactory();
+        $table = $this->root . '_streams';
+
+        return new MySqlEventStore(
+            $messageFactory,
+            $config['connection'],
+            $strategy,
+            $config['load_batch_size'],
+            $table
+        );
 
     }
 }

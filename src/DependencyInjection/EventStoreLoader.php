@@ -50,6 +50,7 @@ class EventStoreLoader
             ->setFactory([new Reference('prooph_event_store.store_factory'), 'create'])
             ->setArguments(
                 [
+                    $name,
                     $arguments,
                     $plugins,
                 ]
@@ -57,6 +58,10 @@ class EventStoreLoader
 
         if (! empty($options['repositories'])) {
             foreach ($options['repositories'] as $repositoryName => $repositoryConfig) {
+                $streamName = null;
+                if (!isset($repositoryConfig['stream_name'])) {
+                    $streamName = $name . '_streams';
+                }
                 $repositoryDefinition = $container
                     ->setDefinition(
                         $repositoryName,
@@ -68,9 +73,9 @@ class EventStoreLoader
                             $repositoryConfig['repository_class'],
                             new Reference($eventStoreId),
                             $repositoryConfig['aggregate_type'],
-                            new Reference('prooph_service_bus.aggregate_translator'),
+                            new Reference('prooph_event_sourcing.aggregate_translator'),
                             isset($repositoryConfig['snapshot_store']) ? new Reference($repositoryConfig['snapshot_store']) : null,
-                            $repositoryConfig['stream_name'] ?? null,
+                            $streamName,
                             $repositoryConfig['one_stream_per_aggregate'] ?? false,
                         ]
                     );

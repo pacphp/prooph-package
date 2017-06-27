@@ -21,8 +21,8 @@ class ProophExtension implements ExtensionInterface
     {
         $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__ . '/../config'));
         $loader->load('event_store.yml');
-        $loader->load('command_bus.yml');
-        $loader->load('event_bus.yml');
+//        $loader->load('command_bus.yml');
+//        $loader->load('event_bus.yml');
         $loader->load('projection.yml');
         $loader->load('service_bus.yml');
 
