@@ -19,12 +19,12 @@ class CreateEventStreamCommand extends Command
         $this
             ->setName('event-store:create-event-stream')
             ->setDescription('Sets up an event stream in the database')
-            ->addArgument('event-stream', InputArgument::REQUIRED, 'The name of the event store');
+            ->addArgument('event-store', InputArgument::REQUIRED, 'The name of the event store');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $eventStream = strtolower($input->getArgument('event-stream'));
+        $eventStream = strtolower($input->getArgument('event-store'));
 
         $eventStore = $this->getContainer()->get('prooph_event_store.' . $eventStream . '_store');
         $streamName = $eventStream . '_streams';
