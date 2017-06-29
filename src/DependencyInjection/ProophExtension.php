@@ -16,8 +16,6 @@ class ProophExtension implements ExtensionInterface
     {
         $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__ . '/../config'));
         $loader->load('event_store.yml');
-//        $loader->load('command_bus.yml');
-//        $loader->load('event_bus.yml');
         $loader->load('projection.yml');
         $loader->load('service_bus.yml');
 
@@ -35,33 +33,16 @@ class ProophExtension implements ExtensionInterface
         return $containerBuilder;
     }
 
-    /**
-     * Returns the namespace to be used for this extension (XML namespace).
-     *
-     * @return string The XML namespace
-     */
     public function getNamespace()
     {
         // TODO: Implement getNamespace() method.
     }
 
-    /**
-     * Returns the base path for the XSD files.
-     *
-     * @return string The XSD base path
-     */
     public function getXsdValidationBasePath()
     {
         // TODO: Implement getXsdValidationBasePath() method.
     }
 
-    /**
-     * Returns the recommended alias to use in XML.
-     *
-     * This alias is also the mandatory prefix to use when using YAML.
-     *
-     * @return string The alias
-     */
     public function getAlias()
     {
         return 'prooph';
