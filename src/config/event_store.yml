@@ -1,4 +1,5 @@
-parameters: 
+parameters:
+  prooph_event_sourcing.aggregate_translator.class: Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator
   prooph_event_store.metadata_enricher_plugin.class: Prooph\EventStore\Metadata\MetadataEnricherPlugin
   prooph_event_store.metadata_enricher_aggregate.class: Prooph\EventStore\Metadata\MetadataEnricherAggregate
   prooph_event_store.message_converter.class: Prooph\Common\Messaging\NoOpMessageConverter
@@ -9,7 +10,9 @@ parameters:
   prooph_event_store.store_factory.class: Pac\ProophPackage\Factory\EventStoreFactory
   prooph_event_store.stream_table_map: []
     
-services: 
+services:
+  prooph_event_sourcing.aggregate_translator:
+    class: '%prooph_event_sourcing.aggregate_translator.class%'
   prooph_event_store.store_definition:
     class:  Prooph\EventStore\EventStore
   prooph_event_store.store_factory:

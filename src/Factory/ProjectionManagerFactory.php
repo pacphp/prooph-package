@@ -17,38 +17,48 @@ use Prooph\EventStore\Projection\ReadModel;
 use Prooph\EventStore\Projection\ReadModelProjector;
 use Prooph\SnapshotStore\SnapshotStore;
 use PDO;
+use ReflectionProperty;
 
 class ProjectionManagerFactory
 {
     public function createProjectionManager(
         EventStore $eventStore,
-        ?PDO $connection = null,
-        string $eventStreamsTable = 'event_streams',
         string $projectionsTable = 'projections'
     ): ProjectionManager {
-
-        $checkConnection = function () use ($connection) {
-            if (!$connection instanceof PDO) {
-                throw new RuntimeException('PDO connection missing');
-            }
-        };
-
         if ($eventStore instanceof InMemoryEventStore) {
             return new InMemoryProjectionManager($eventStore);
         }
 
         if ($eventStore instanceof PostgresEventStore) {
-            $checkConnection();
+            $connection = static::getConnectorFromEventStore($eventStore);
+            $eventStreamsTable = static::getEventStreamTableFromEventStore($eventStore);
 
             return new PostgresProjectionManager($eventStore, $connection, $eventStreamsTable, $projectionsTable);
         }
 
         if ($eventStore instanceof MySqlEventStore) {
-            $checkConnection();
+            $connection = static::getConnectorFromEventStore($eventStore);
+            $eventStreamsTable = static::getEventStreamTableFromEventStore($eventStore);
 
             return new MySqlProjectionManager($eventStore, $connection, $eventStreamsTable, $projectionsTable);
         }
 
         throw new RuntimeException(sprintf('ProjectionManager for %s not implemented.', $eventStore));
+    }
+
+    private function getConnectorFromEventStore(EventStore $eventStore): PDO
+    {
+        $rp = new ReflectionProperty($eventStore, 'connection');
+        $rp->setAccessible(true);
+
+        return $rp->getValue($eventStore);
+    }
+
+    private function getEventStreamTableFromEventStore(EventStore $eventStore): string
+    {
+        $rp = new ReflectionProperty($eventStore, 'eventStreamsTable');
+        $rp->setAccessible(true);
+
+        return $rp->getValue($eventStore);
     }
 }

@@ -5,7 +5,7 @@ namespace Pac\ProophPackage\DependencyInjection;
 
 class ProjectionsFactory
 {
-    public function loadProjectors($class, $projectors)
+    public static function loadProjectors($class, $projectors)
     {
         $projector = new $class();
 

@@ -1,5 +1,4 @@
 parameters:
-  prooph_service_bus.message_bus_factory.class: Prooph\Bundle\ServiceBus\MessageBusFactory
   prooph_service_bus.message_factory_plugin.class: Prooph\ServiceBus\Plugin\MessageFactoryPlugin
   prooph_service_bus.message_factory.class: Prooph\Common\Messaging\FQCNMessageFactory
   prooph_service_bus.container_plugin.class: Prooph\ServiceBus\Plugin\ServiceLocatorPlugin
@@ -19,3 +18,6 @@ services:
     class: '%prooph_service_bus.container_plugin.class%'
     arguments:
       - '@service_container'
+
+  prooph_service_bus.command_bus_factory:
+    class: Pac\ProophPackage\Factory\CommandBusFactory

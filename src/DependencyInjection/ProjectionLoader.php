@@ -11,69 +11,60 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class ProjectionLoader
 {
-    public function load($config, ContainerBuilder $containerBuilder): ContainerBuilder
+    public function load(string $name, array $config, ContainerBuilder $containerBuilder): ContainerBuilder
     {
         $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__ . '/../config'));
 
         $loader->load('projection.yml');
 
-        if (! empty($config['projection_managers'])) {
-            $this->loadProjectionManagers($config, $containerBuilder);
-        }
+        $containerBuilder->setAlias(sprintf('%s.%s.read_model_collection', ProophExtension::TAG_PROJECTION, $name), $config['read_model_collection']);
 
-        if (! empty($config['projections'])) {
-            $this->loadProjections($config, $containerBuilder);
+        $eventStore = $config['event_store'] ?? EventStoreLoader::eventStoreId($name);
+        $projectionManagerDefinition = new Definition();
+        $projectionManagerDefinition
+            ->setFactory([new Reference('prooph_event_store.projection_manager_factory'), 'createProjectionManager'])
+            ->setArguments(
+                [
+                    new Reference($eventStore),
+                ]
+            );
+        $projectorManagerId = static::projectionManagerId($name);
+        $containerBuilder->setDefinition(
+            $projectorManagerId,
+            $projectionManagerDefinition
+        );
+
+        if (! empty($config['projectors'])) {
+            $this->loadProjections($name, $config, $containerBuilder);
         }
 
         return $containerBuilder;
-
     }
 
-    protected function loadProjectionManagers(array $config, ContainerBuilder $containerBuilder)
+    public static function projectionManagerId(string $name): string
     {
-        foreach ($config['projection_managers'] as $projectionManagerName => $projectionManagerConfig) {
-            $projectionManagerDefinition = new Definition();
-            $projectionManagerDefinition
-                ->setFactory([new Reference('prooph_event_store.projection_manager_factory'), 'createProjectionManager'])
-                ->setArguments(
-                    [
-                        new Reference($projectionManagerConfig['event_store']),
-                        new Reference($projectionManagerConfig['connection']),
-                        $projectionManagerConfig['event_streams_table'] ?? 'event_streams',
-                        $projectionManagerConfig['projections_table'] ?? 'projections',
-                    ]
-                );
-            $projectorManagerId = sprintf('prooph_event_store.projection_manager.%s', $projectionManagerName);
-            $containerBuilder->setDefinition(
-                $projectorManagerId,
-                $projectionManagerDefinition
-            );
-        }
+        return sprintf('%s.%s.projection_manager', ProophExtension::TAG_PROJECTION, $name);
     }
 
-    protected function loadProjections(array $config, ContainerBuilder $containerBuilder)
+    protected function loadProjections(string $name, array $config, ContainerBuilder $containerBuilder)
     {
-        foreach ($config['projections'] as $projectionName => $projectionConfig) {
-            $containerBuilder->setAlias(sprintf('%s.%s.projection_manager', ProophExtension::TAG_PROJECTION, $projectionName), $projectionConfig['projection_manager']);
-            $containerBuilder->setAlias(sprintf('%s.%s.read_model_collection', ProophExtension::TAG_PROJECTION, $projectionName), $projectionConfig['read_model_collection']);
-            $referencedProjectors = [];
-            foreach ($projectionConfig['projectors'] as $event => $projectors) {
-                foreach ($projectors as $projector) {
-                    $referencedProjectors[$event][] = new Reference($projector);
-                }
+        $referencedProjectors = [];
+        foreach ($config['projectors'] as $event => $projectors) {
+            foreach ($projectors as $projector) {
+                $referencedProjectors[$event][] = new Reference($projector);
             }
-            $containerBuilder
-                ->setDefinition(
-                    sprintf('prooph_event_store.projection.%s', $projectionName),
-                    (new Definition($projectionConfig['projection_class']))
-                        ->setFactory([ProjectionsFactory::class, 'loadProjectors'])
-                        ->setArguments(
-                            [
-                                $projectionConfig['projection_class'],
-                                $referencedProjectors,
-                            ]
-                        )
-                );
         }
+        $containerBuilder
+            ->setDefinition(
+                sprintf('prooph_event_store.projection.%s', $name),
+                (new Definition($config['projection_class']))
+                    ->setFactory([ProjectionsFactory::class, 'loadProjectors'])
+                    ->setArguments(
+                        [
+                            $config['projection_class'],
+                            $referencedProjectors,
+                        ]
+                    )
+            );
     }
 }
