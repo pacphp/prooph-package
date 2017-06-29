@@ -25,9 +25,6 @@ prooph:
           MyApp\GraphQL\Field\CreateCompanyField: MyApp\Company\Command\CreateCompany
 
     projection:
-      projection_manager: 'prooph_event_store.projection_manager.default_projection_manager'
-#                  event_store: 'prooph_event_store.company_store' # event store
-#                  connection: 'pdo_connection' # event store service
       read_model_collection: 'prooph.read_model.company_collection'
       projection_class: MyApp\Company\Projection\CompanyProjector
       projectors:
