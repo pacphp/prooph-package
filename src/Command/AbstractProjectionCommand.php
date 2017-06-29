@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Pac\ProophPackage\Command;
 
 use Pac\Console\Command;
+use Pac\ProophPackage\DependencyInjection\ProjectionLoader;
 use Pac\ProophPackage\DependencyInjection\ProophExtension;
 use Pac\ProophPackage\Projection\ProjectionInterface;
 use Pac\ProophPackage\Projection\ReadModelProjectionInterface;
@@ -63,10 +64,10 @@ abstract class AbstractProjectionCommand extends Command
 
         $container = $this->getContainer();
 
-        if (!$container->has(sprintf('%s.%s.projection_manager', ProophExtension::TAG_PROJECTION, $this->projectionName))) {
+        if (!$container->has(ProjectionLoader::projectionManagerId($this->projectionName))) {
             throw new RuntimeException(sprintf('ProjectionManager for "%s" not found', $this->projectionName));
         }
-        $this->projectionManager = $container->get(sprintf('%s.%s.projection_manager', ProophExtension::TAG_PROJECTION, $this->projectionName));
+        $this->projectionManager = $container->get(ProjectionLoader::projectionManagerId($this->projectionName));
 
         if (!$container->has(sprintf('%s.%s', ProophExtension::TAG_PROJECTION, $this->projectionName))) {
             throw new RuntimeException(sprintf('Projection "%s" not found', $this->projectionName));
