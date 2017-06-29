@@ -3,15 +3,10 @@ declare(strict_types=1);
 
 namespace Pac\ProophPackage\DependencyInjection;
 
-use Prooph\ServiceBus\CommandBus;
-use Prooph\ServiceBus\EventBus;
-use Prooph\ServiceBus\QueryBus;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\DependencyInjection\Reference;
 
 class ProophExtension implements ExtensionInterface
 {
@@ -34,7 +29,7 @@ class ProophExtension implements ExtensionInterface
             if (! empty($options['graphql'])) {
                 (new GraphQLLoader())->load($root, $options['graphql'], $containerBuilder);
             }
-            (new ProjectionLoader())->load($options['projection'], $containerBuilder);
+            (new ProjectionLoader())->load($root, $options['projection'], $containerBuilder);
         }
 
         return $containerBuilder;

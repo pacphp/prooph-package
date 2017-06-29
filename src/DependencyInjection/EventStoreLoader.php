@@ -41,7 +41,7 @@ class EventStoreLoader
         unset($arguments['plugins']);
         unset($arguments['repositories']);
 
-        $eventStoreId = 'prooph_event_store.' . $name . '_store';
+        $eventStoreId = static::eventStoreId($name);
         $container
             ->setDefinition(
                 $eventStoreId,
@@ -100,5 +100,10 @@ class EventStoreLoader
                 new ChildDefinition('prooph_event_store.metadata_enricher_plugin_definition')
             )
             ->setClass('%prooph_event_store.metadata_enricher_plugin.class%');
+    }
+
+    public static function eventStoreId(string $name): string
+    {
+        return 'prooph_event_store.' . $name . '_store';
     }
 }
