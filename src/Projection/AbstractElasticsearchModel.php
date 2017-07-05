@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Pac\ProophPackage\Projection;
 
+use Diaclone\Connector\ElasticSearchConnector;
+use Diaclone\ConnectorTransformService;
+use Diaclone\Resource\Object;
 use Elasticsearch\Client;
 use Prooph\EventStore\Projection\AbstractReadModel;
 
@@ -13,10 +16,31 @@ abstract class AbstractElasticsearchModel extends AbstractReadModel
 
     /** @var Client */
     protected $client;
+    protected $connector;
+    protected $transformer;
 
-    public function __construct(Client $client)
+    public function __construct(Client $client, ConnectorTransformService $transformer)
     {
         $this->client = $client;
+        $this->connector = new ElasticSearchConnector(
+            $client,
+            [
+                'index' => static::INDEX_NAME,
+                'type' => static::INDEX_TYPE ?? static::INDEX_NAME,
+            ]
+        );
+        $this->transformer = $transformer;
+    }
+
+    public function create(array $data)
+    {
+        $transformerClass = static::TRANSFORMER_CLASS;
+        $transformer = new $transformerClass();
+        $resource = new Object($data);
+        $object = $transformer->untransform($resource);
+        $storableData = $transformer->transform(new Object($object));
+
+        $this->insert($storableData);
     }
 
     public function getClient(): Client
@@ -27,6 +51,16 @@ abstract class AbstractElasticsearchModel extends AbstractReadModel
     public function isInitialized(): bool
     {
         return $this->client->indices()->exists(['index' => static::INDEX_NAME]);
+    }
+
+    public function findObjectById(string $id)
+    {
+        $this->connector->query(['match' => [static::ID_NAME => $id]]);
+
+        $transformerClass = static::TRANSFORMER_CLASS;
+        $this->transformer->untransform($this->connector, new $transformerClass(), Object::class);
+
+        return $this->connector->getData();
     }
 
     public function reset(): void
@@ -41,6 +75,20 @@ abstract class AbstractElasticsearchModel extends AbstractReadModel
             ],
         ];
         $response = $this->client->deleteByQuery($params);
+    }
+
+    public function insertObject($object)
+    {
+        $this->connector->setData($object);
+        $transformerClass = static::TRANSFORMER_CLASS;
+        $this->transformer->transform($this->connector, new $transformerClass(), '', '*',Object::class);
+    }
+
+    public function saveObject($object)
+    {
+        $this->connector->setData($object);
+        $transformerClass = static::TRANSFORMER_CLASS;
+        $this->transformer->transform($this->connector, new $transformerClass(), '', '*',Object::class);
     }
 
     public function delete(): void
