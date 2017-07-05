@@ -46,6 +46,11 @@ class ProjectionLoader
         return sprintf('%s.%s.projection_manager', ProophExtension::TAG_PROJECTION, $name);
     }
 
+    public static function readModelId(string $name): string
+    {
+        return sprintf('%s.%s.read_model_collection', ProophExtension::TAG_PROJECTION, $name);
+    }
+
     protected function loadProjections(string $name, array $config, ContainerBuilder $containerBuilder)
     {
         $referencedProjectors = [];

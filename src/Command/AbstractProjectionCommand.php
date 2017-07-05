@@ -75,10 +75,10 @@ abstract class AbstractProjectionCommand extends Command
         $this->projection = $container->get(sprintf('%s.%s', ProophExtension::TAG_PROJECTION, $this->projectionName));
 
         if ($this->projection instanceof ReadModelProjectionInterface) {
-            if (!$container->has(sprintf('%s.%s.read_model_collection', ProophExtension::TAG_PROJECTION, $this->projectionName))) {
+            if (!$container->has(ProjectionLoader::readModelId($this->projectionName))) {
                 throw new RuntimeException(sprintf('ReadModel for "%s" not found', $this->projectionName));
             }
-            $this->readModel = $container->get(sprintf('%s.%s.read_model_collection', ProophExtension::TAG_PROJECTION, $this->projectionName));
+            $this->readModel = $container->get(ProjectionLoader::readModelId($this->projectionName));
 
             $this->projector = $this->projectionManager->createReadModelProjection($this->projectionName, $this->readModel);
         }
