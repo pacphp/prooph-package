@@ -13,14 +13,14 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ResetProjectionStorageCommand extends Command
+class ProjectionDeleteStorageCommand extends Command
 {
     protected function configure()
     {
         parent::configure();
         $this
-            ->setName('projection:reset-storage')
-            ->setDescription('Clear the data from the projection persistence')
+            ->setName('projection:delete-storage')
+            ->setDescription('Delete the projection persistence')
             ->addArgument('projection', InputArgument::REQUIRED, 'The name of the event store');
     }
 
@@ -31,6 +31,6 @@ class ResetProjectionStorageCommand extends Command
         /** @var ReadModel $readModel */
         $readModel = $this->getContainer()->get(ProjectionLoader::readModelId($projectionName));
 
-        $readModel->reset();
+        $readModel->delete();
     }
 }
