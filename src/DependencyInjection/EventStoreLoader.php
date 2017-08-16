@@ -13,16 +13,16 @@ class EventStoreLoader
 {
     public function load(string $name, array $options, ContainerBuilder $container)
     {
-        if (! empty($options['event_bus'])) {
-            $plugins[] = $container
-                ->setDefinition(
-                    'prooph_event_store_bus_bridge.company_event_publisher',
-                    new Definition(
-                        EventPublisher::class,
-                        [new Reference($options['event_bus'])])
-                );
-        }
-        unset($options['event_bus']);
+//        if (! empty($options['event_bus'])) {
+//            $plugins[] = $container
+//                ->setDefinition(
+//                    'prooph_event_store_bus_bridge.company_event_publisher',
+//                    new Definition(
+//                        EventPublisher::class,
+//                        [new Reference($options['event_bus'])])
+//                );
+//        }
+//        unset($options['event_bus']);
 
         $plugins = [];
         if (! empty($options['plugins'])) {

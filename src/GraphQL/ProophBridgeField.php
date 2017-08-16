@@ -21,8 +21,9 @@ abstract class ProophBridgeField extends AbstractField
     public function resolve($value, array $args, ResolveInfoInterface $info)
     {
         $data = $this->resolveData($value, $args, $info);
+        $data['rootId'] = $this->messageFactory->createAndDispatchMessage(static::class, $data);
 
-        return $this->messageFactory->createAndDispatchMessage(static::class, $data);
+        return $data;
     }
 
     abstract protected function resolveData($value, array $args, ResolveInfoInterface $info): array;
