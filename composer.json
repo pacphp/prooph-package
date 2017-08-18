@@ -6,8 +6,9 @@
     "license": "MIT",
     "require": {
         "elasticsearch/elasticsearch": "~5.0",
+        "php": ">=7.1",
         "prooph/event-store": "^7.0",
-        "php": ">=7.1"
+        "prooph/pdo-event-store": "^1.5"
     },
     "require-dev": {
         "codeception/codeception": "^2.2"

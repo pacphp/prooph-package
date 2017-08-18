@@ -6,7 +6,6 @@ namespace Pac\ProophPackage\DependencyInjection;
 use Prooph\EventStoreBusBridge\TransactionManager;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
-use Prooph\ServiceBus\QueryBus;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -25,18 +24,6 @@ class BusLoader
 
     private function loadCommandBus(string $name, array $options, ContainerBuilder $containerBuilder)
     {
-        $transactionPluginId = 'prooph_event_store_bus_bridge.' . $name . '_transaction_manager';
-        $containerBuilder->setDefinition(
-            $transactionPluginId,
-            new Definition(
-                TransactionManager::class,
-                [
-                    new Reference('prooph_event_store.' . $name . '_store')
-                ]
-            )
-        );
-        $options['plugins'][] = $transactionPluginId;
-
         $containerBuilder->setDefinition(
             'prooph_service_bus.' . $name . '_command_bus',
             new Definition(CommandBus::class)
