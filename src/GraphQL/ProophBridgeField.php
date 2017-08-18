@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Pac\ProophPackage\GraphQL;
 
-use Youshido\GraphQL\Execution\ResolveInfo\ResolveInfoInterface;
+use Youshido\GraphQL\Execution\ResolveInfo;
 use Youshido\GraphQL\Field\AbstractField;
 
 abstract class ProophBridgeField extends AbstractField
@@ -18,7 +18,7 @@ abstract class ProophBridgeField extends AbstractField
         parent::__construct($config);
     }
 
-    public function resolve($value, array $args, ResolveInfoInterface $info)
+    public function resolve($value, array $args, ResolveInfo $info)
     {
         $data = $this->resolveData($value, $args, $info);
         $data['rootId'] = $this->messageFactory->createAndDispatchMessage(static::class, $data);
@@ -26,5 +26,5 @@ abstract class ProophBridgeField extends AbstractField
         return $data;
     }
 
-    abstract protected function resolveData($value, array $args, ResolveInfoInterface $info): array;
+    abstract protected function resolveData($value, array $args, ResolveInfo $info): array;
 }
