@@ -46,12 +46,17 @@ class BaseElasticsearchRepository implements RepositoryInterface
 
     public function find($id, $fields = [])
     {
+        return $this->findBy($this->readModel::ID_NAME, $id, $fields);
+    }
+
+    public function findBy(string $field, string $value, $fields = [])
+    {
         $params = [
             'index' => $this->readModel::INDEX_NAME,
             'body' => [
                 'query' => [
                     'match' => [
-                        $this->readModel::ID_NAME => $id,
+                        $field => $value,
                     ],
                 ],
             ],
