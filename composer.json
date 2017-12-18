@@ -5,7 +5,7 @@
     "keywords": ["prooph"],
     "license": "MIT",
     "require": {
-        "elasticsearch/elasticsearch": "~5.0",
+        "elasticsearch/elasticsearch": "~5.0 || ~6.0",
         "php": ">=7.1",
         "prooph/common" : "^4.1.0",
         "prooph/event-sourcing" : "^5.0",
