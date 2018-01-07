@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace Pac\ProophPackage\Projection;
 
-use Diaclone\Connector\ElasticSearchConnector;
-use Diaclone\ConnectorTransformService;
-use Diaclone\Resource\Object;
+use Diaclone\Resource\ObjectItem;
 use Elasticsearch\Client;
 use Prooph\EventStore\Projection\AbstractReadModel;
 
@@ -17,28 +15,19 @@ abstract class AbstractElasticsearchModel extends AbstractReadModel
     /** @var Client */
     protected $client;
     protected $connector;
-    protected $transformer;
 
-    public function __construct(Client $client, ConnectorTransformService $transformer)
+    public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->connector = new ElasticSearchConnector(
-            $client,
-            [
-                'index' => static::INDEX_NAME,
-                'type' => static::INDEX_TYPE ?? static::INDEX_NAME,
-            ]
-        );
-        $this->transformer = $transformer;
     }
 
     public function create(array $data)
     {
         $transformerClass = static::TRANSFORMER_CLASS;
         $transformer = new $transformerClass();
-        $resource = new Object($data);
+        $resource = new ObjectItem($data);
         $object = $transformer->untransform($resource);
-        $storableData = $transformer->transform(new Object($object));
+        $storableData = $transformer->transform(new ObjectItem($object));
 
         $this->insert($storableData);
     }
@@ -55,12 +44,16 @@ abstract class AbstractElasticsearchModel extends AbstractReadModel
 
     public function findObjectById(string $id)
     {
-        $this->connector->query(['match' => [static::ID_NAME => $id]]);
+        $results = $this->client->search(['body' => ['query' => ['match' => [static::ID_NAME => $id]]]]);
+        if (0 === $results['hits']['total']) {
+            return null;
+        }
+        $hit = $results['hits']['hits'][0];
 
         $transformerClass = static::TRANSFORMER_CLASS;
-        $this->transformer->untransform($this->connector, new $transformerClass(), Object::class);
+        $resource = new ObjectItem($hit['_source']);
 
-        return $this->connector->getData();
+        return (new $transformerClass())->toObject($resource);
     }
 
     public function reset(): void
@@ -79,16 +72,17 @@ abstract class AbstractElasticsearchModel extends AbstractReadModel
 
     public function insertObject($object)
     {
-        $this->connector->setData($object);
         $transformerClass = static::TRANSFORMER_CLASS;
-        $this->transformer->transform($this->connector, new $transformerClass(), '', '*',Object::class);
-    }
+        $resource = new ObjectItem($object);
+
+        $data = (new $transformerClass())->toArray($resource);
+
+        $this->insert($data);
+   }
 
     public function saveObject($object)
     {
-        $this->connector->setData($object);
-        $transformerClass = static::TRANSFORMER_CLASS;
-        $this->transformer->transform($this->connector, new $transformerClass(), '', '*',Object::class);
+        $this->insertObject($object);
     }
 
     public function delete(): void
