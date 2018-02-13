@@ -100,5 +100,6 @@ abstract class AbstractElasticsearchModel extends AbstractReadModel
         ];
 
         $response = $this->client->index($params);
+        sleep(1);
     }
 }
